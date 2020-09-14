@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import socket
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,7 +27,13 @@ SECRET_KEY = 'qkb(d-$q)^$-32748!wlcq&n&19=(s+jmy70k-$hzr8ab3w@bh'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+# Get IP of your RPi
+ip_address = ''
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("8.8.8.8",80))
+ip_address = s.getsockname()[0]
+s.close()
+ALLOWED_HOSTS.append(ip_address)
 
 # Application definition
 

@@ -1,2 +1,4 @@
-my_env/
+myenv/
 __pycache__
+venv/
+.idea/

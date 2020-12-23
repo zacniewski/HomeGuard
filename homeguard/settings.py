@@ -26,9 +26,9 @@ SECRET_KEY = 'qkb(d-$q)^$-32748!wlcq&n&19=(s+jmy70k-$hzr8ab3w@bh'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['raspberrypi.local'] # it's no good, the middleware shoul be used to allow access for specific hosts
-# Application definition
+ALLOWED_HOSTS = ['raspberrypi.local']
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

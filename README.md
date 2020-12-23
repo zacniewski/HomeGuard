@@ -26,6 +26,15 @@
   * `pip install -r requirements.txt`
 
 ## uWSGI
-  * install both system-wide and in virtual environment
+  * install both system-wide (sudo -H pip3 install uwsgi) and in virtual environment (pip install uwsgi)
+
 
 ## Nginx
+  * add default_server in listen section
+  * remove default files in s-a and s-e
+
+If this goes well, you can enable both of the services to start automatically at boot by typing:
+
+    sudo systemctl enable nginx
+    sudo systemctl enable uwsgi
+

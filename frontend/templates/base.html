@@ -20,7 +20,7 @@
             {%  endblock bodystyle %}
     >
         <nav class="sb-topnav navbar navbar-expand navbar-dark sb-sidenav-dark">
-            <a class="navbar-brand" href="https://zacniewski.github.io/">Home</a>
+            <a class="navbar-brand" href="{%  url 'frontend:index' %}">Home</a>
             <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
         </nav>
         <div id="layoutSidenav">
@@ -28,9 +28,9 @@
                 <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                     <div class="sb-sidenav-menu">
                         <div class="nav">
-                            <div class="sb-sidenav-menu-heading text-success">DEVICES</div>
+                            <div class="sb-sidenav-menu-heading text-success "><h5>Devices</h5></div>
                             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
-                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                                <div class="sb-nav-link-icon"><i class="fas fa-video"></i></div>
                                 Cameras
                                 <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
@@ -41,7 +41,7 @@
                                 </nav>
                             </div>
                             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts2" aria-expanded="false" aria-controls="collapseLayouts2">
-                                <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
+                                <div class="sb-nav-link-icon"><i class="fas fa-weight"></i></div>
                                 Sensors
                                 <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
@@ -53,7 +53,7 @@
                                 </nav>
                             </div>
 
-                            <div class="sb-sidenav-menu-heading text-success">SETTINGS</div>
+                            <div class="sb-sidenav-menu-heading text-success"><h5>Settings</h5></div>
                             <a class="nav-link" href="../../grades/">
                                 <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                                 Temperature of RPi
@@ -93,7 +93,7 @@
                                         <a href="https://www.researchgate.net/profile/Artur_Zacniewski" target="_blank"><i class="ai ai-researchgate ai-3x"></i></a>
                                     </span>
                                     <span class="col-2 center ai-case">
-                                        <a href="http://orcid.org/0000-0002-3604-4051" target="_blank"><i class="ai ai-orcid ai-3x"></i></a>
+                                        <a href="https://orcid.org/0000-0002-3604-4051" target="_blank"><i class="ai ai-orcid ai-3x"></i></a>
                                     </span>
                                     <span class="col-2 center ai-case text-white">
                                         <a href="https://informatyka.amw.gdynia.pl/" target="_blank"><i class="fas fa-university fa-3x"></i></a>

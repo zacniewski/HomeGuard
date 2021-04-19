@@ -44,3 +44,9 @@ If this all goes well, you can enable both of the services to start automaticall
     sudo systemctl enable uwsgi
 You can find many useful hints [here](https://www.digitalocean.com/community/tutorials/how-to-serve-django-applications-with-uwsgi-and-nginx-on-ubuntu-16-04).  
 
+## Certbot
+
+
+## Applying changes without reboot
+  ```sudo systemctl restart uwsgi```  and  
+  ```sudo systemctl restart nginx```

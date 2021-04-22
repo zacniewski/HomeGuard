@@ -1,5 +1,29 @@
-{% extends 'base.html' %}
+{%  extends 'base.html' %}
+{%  load static  %}
 
-{%  block bodystyle %}
-    style="background-image: url('static/images/raspberry-pi-landing-page.jpg'); background-size: 100% 100%;"
+{% block bodystyle %}
+    style="background-color: #e9ecef;"
 {%  endblock bodystyle %}
+
+{%  block content %}
+
+    <div class="container text-center mb-5 mt-4 p-5">
+        <h3 class="display-3 font-weight-bold">Home Guard system</h3>
+    </div>
+    <div class="d-flex flex-row justify-content-around align mt-5">
+      <div class="p-2">
+          <img class="mx-auto d-block w-50 mb-4 mt-4"
+               src="{%  static 'images/Raspberry_Pi_Logo.svg' %}"
+          />
+    </div>
+      <div class="p-2">
+          <ul class="text-dark display-4 list-unstyled text-justify">
+              <li class="mb-4">&#9989; Based on Raspberry Pi 4</li>
+              <li class="mb-4">&#9989; Works with different cameras</li>
+              <li class="mb-4">&#9989; Allows the use of various sensors</li>
+              <li class="mb-4">&#9989; Available via mobile app</li>
+              <li>&#9989; Free updates</li>
+          </ul>
+      </div>
+    </div>
+{% endblock content %}

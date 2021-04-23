@@ -21,11 +21,10 @@
         <div class="jumbotron jumbotron-fluid">
             <div class="container d-flex flex-column align-self-center">
                 <i class="fas fa-network-wired fa-4x mb-4 align-self-center"></i>
-            {{  network_dict }}
                 {%  if network_dict.wired_ip %}
-                    <h2 class="display-6 align-self-center">&#127796; IP of your device: <b>{{ network_dict.ip }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; IP of your device: <b>{{ network_dict.wired_ip }}</b></h2>
                 {%  else %}
-                    <h2 class="display-6 align-self-center">&#10060;  Your device is <b>not connected</b> to wired network!</h2>
+                    <h2 class="display-6 align-self-center">&#10060;  Your device is <b>not connected</b> to any wired network!</h2>
                 {%  endif %}
             </div>
         </div>

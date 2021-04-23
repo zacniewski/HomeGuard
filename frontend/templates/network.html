@@ -25,6 +25,7 @@
                     <h2 class="display-6 align-self-center">&#127796; IP of your device: <b>{{ ifconfig_dict.ip }}</b></h2>
                 {%  else %}
                     <h2 class="display-6 align-self-center">&#10060;  Your device is <b>not connected</b> to wired network!</h2>
+                    {{  ifconfig_dict }}
                 {%  endif %}
             </div>
         </div>

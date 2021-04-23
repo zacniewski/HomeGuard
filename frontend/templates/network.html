@@ -6,11 +6,11 @@
         <div class="jumbotron jumbotron-fluid">
             <div class="container d-flex flex-column align-self-center">
                 <i class="fas fa-wifi fa-4x mb-4 align-self-center"></i>
-                {%  if iwconfig_dict.Frequency %}
-                    <h2 class="display-6 align-self-center">&#127796; Name of the network: <b>{{ iwconfig_dict.name }}</b></h2>
-                    <h2 class="display-6 align-self-center">&#127796; Frequency: <b>{{ iwconfig_dict.Frequency }}</b></h2>
-                    <h2 class="display-6 align-self-center">&#127796; Bit rate: <b>{{ iwconfig_dict.BitRate }}</b></h2>
-                    <h2 class="display-6 align-self-center">&#127796; Link quality: <b>{{ iwconfig_dict.LinkQuality }}</b></h2>
+                {%  if network_dict.Frequency %}
+                    <h2 class="display-6 align-self-center">&#127796; Name of the network: <b>{{ network_dict.name }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; Frequency: <b>{{ network_dict.Frequency }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; Bit rate: <b>{{ network_dict.BitRate }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; Link quality: <b>{{ network_dict.LinkQuality }}</b></h2>
                 {%  else %}
                     <h2 class="display-6 align-self-center">&#10060;  Your device is <b>not connected</b> to wireless network!</h2>
                 {%  endif %}
@@ -22,10 +22,9 @@
             <div class="container d-flex flex-column align-self-center">
                 <i class="fas fa-network-wired fa-4x mb-4 align-self-center"></i>
                 {%  if ifconfig_dict.ip %}
-                    <h2 class="display-6 align-self-center">&#127796; IP of your device: <b>{{ ifconfig_dict.ip }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; IP of your device: <b>{{ network_dict.ip }}</b></h2>
                 {%  else %}
                     <h2 class="display-6 align-self-center">&#10060;  Your device is <b>not connected</b> to wired network!</h2>
-                    {{  ifconfig_dict }}
                 {%  endif %}
             </div>
         </div>

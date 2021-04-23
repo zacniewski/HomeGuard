@@ -8,6 +8,7 @@
                 <i class="fas fa-wifi fa-4x mb-4 align-self-center"></i>
                 {%  if network_dict.Frequency %}
                     <h2 class="display-6 align-self-center">&#127796; Name of the network: <b>{{ network_dict.name }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; IP (wireless) of your device: <b>{{ network_dict.wireless_ip }}</b></h2>
                     <h2 class="display-6 align-self-center">&#127796; Frequency: <b>{{ network_dict.Frequency }}</b></h2>
                     <h2 class="display-6 align-self-center">&#127796; Bit rate: <b>{{ network_dict.BitRate }}</b></h2>
                     <h2 class="display-6 align-self-center">&#127796; Link quality: <b>{{ network_dict.LinkQuality }}</b></h2>
@@ -22,7 +23,7 @@
             <div class="container d-flex flex-column align-self-center">
                 <i class="fas fa-network-wired fa-4x mb-4 align-self-center"></i>
                 {%  if network_dict.wired_ip %}
-                    <h2 class="display-6 align-self-center">&#127796; IP of your device: <b>{{ network_dict.wired_ip }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; IP (ethernet) of your device: <b>{{ network_dict.wired_ip }}</b></h2>
                 {%  else %}
                     <h2 class="display-6 align-self-center">&#10060;  Your device is <b>not connected</b> to any wired network!</h2>
                 {%  endif %}

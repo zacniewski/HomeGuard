@@ -12,10 +12,12 @@ class IndexView(TemplateView):
 def network(request):
     # 'wlan0' for RPi and 'wlp5s0' for my laptop
     result_of_iwconfig = subprocess.run(['iwconfig', 'wlan0'], stdout=subprocess.PIPE).stdout.decode('utf-8')
-    result_of_ifconfig = subprocess.run(['ifconfig', 'eth0'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    result_of_ifconfig_eth0 = subprocess.run(['ifconfig', 'eth0'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    result_of_ifconfig_wlan0 = subprocess.run(['ifconfig', 'wlan0'], stdout=subprocess.PIPE).stdout.decode('utf-8')
 
     list_with_iwconfig_data = result_of_iwconfig.split('\n')
-    list_with_ifconfig_data = result_of_ifconfig.split('\n')
+    list_with_ifconfig_data_eth0 = result_of_ifconfig_eth0.split('\n')
+    list_with_ifconfig_data_wlan0 = result_of_ifconfig_wlan0.split('\n')
 
     network_dict = {}
 
@@ -29,9 +31,13 @@ def network(request):
         if 'Quality' in item:
             network_dict['LinkQuality'] = item[item.find('Quality')+8: item.find('=')+6]
 
-    for item in list_with_ifconfig_data:
+    for item in list_with_ifconfig_data_eth0:
         if 'broadcast' in item:
             network_dict['wired_ip'] = item[item.find('inet')+4: item.rfind('netmask')-1]
+
+    for item in list_with_ifconfig_data_wlan0:
+        if 'broadcast' in item:
+            network_dict['wireless_ip'] = item[item.find('inet')+4: item.rfind('netmask')-1]
     return render(request, 'network.html', {'network_dict': network_dict})
 
 

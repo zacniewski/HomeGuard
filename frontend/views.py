@@ -11,7 +11,7 @@ class IndexView(TemplateView):
 
 def network(request):
     # 'wlan0' for RPi and 'wlp5s0' for my laptop
-    result_of_iwconfig = subprocess.run(['iwconfig', 'wlp5s0'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    result_of_iwconfig = subprocess.run(['iwconfig', 'wlan0'], stdout=subprocess.PIPE).stdout.decode('utf-8')
     result_of_ifconfig = subprocess.run(['ifconfig', 'wlp5s0'], stdout=subprocess.PIPE).stdout.decode('utf-8')
 
     list_with_iwconfig_data = result_of_iwconfig.split('\n')

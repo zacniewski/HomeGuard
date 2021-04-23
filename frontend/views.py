@@ -33,7 +33,7 @@ def network(request):
     for item in list_with_ifconfig_data:
         if 'broadcast' in item:
             ifconfig_dict['ip'] = item[item.find('inet')+4: item.rfind('netmask')-1]
-        return render(request, 'network.html', {'iwconfig_dict': iwconfig_dict}, {'ifconfig_dict': ifconfig_dict})
+        return render(request, 'network.html', {'iwconfig_dict': iwconfig_dict, 'ifconfig_dict': ifconfig_dict})
 
 
 def updates(request):

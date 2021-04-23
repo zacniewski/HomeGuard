@@ -4,20 +4,31 @@
     <div class="container-fluid">
         <h1 class="mt-4 font-weight-bold">Network connections</h1>
         <div class="jumbotron jumbotron-fluid">
-            <div class="container text-justify">
-                <i class="fas fa-wifi fa-4x mb-4 text-center"></i>
+            <div class="container d-flex flex-column align-self-center">
+                <i class="fas fa-wifi fa-4x mb-4 align-self-center"></i>
+                {%  if iwconfig_dict.Frequency %}
+                    <h2 class="display-6 align-self-center">&#127796; Name of the network: <b>{{ iwconfig_dict.name }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; Frequency: <b>{{ iwconfig_dict.Frequency }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; Bit rate: <b>{{ iwconfig_dict.BitRate }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; Link quality: <b>{{ iwconfig_dict.LinkQuality }}</b></h2>
+                {%  else %}
+                    <h2 class="display-6 align-self-center">&#10060;  Your device is <b>not connected</b> to wireless network!</h2>
+                {%  endif %}
 
-                <h3 class="display-6">W tym semestrze zadania będą realizowane za pomocą <a href="https://zacniewski.github.io/tasks-mobile-apps-react-native/">innych</a> technologii &hearts;</h3>
-                <p class="lead">Pod <a href="https://zacniewski.gitlab.io/teaching/2019-android/" target="_blank">linkiem</a> znajduje się wersja dotychczas obowiązująca dla osób, które chcą zadania realizować w języku Java &#127773;</p>
             </div>
         </div>
 
         <div class="jumbotron jumbotron-fluid">
-            <div class="container">
-                <i class="fas fa-network-wired fa-4x mb-4 text-center"></i>
-
-                <h1 class="display-4">W tym semestrze zadania będą realizowane za pomocą <a href="https://zacniewski.github.io/tasks-mobile-apps-react-native/">innych</a> technologii &hearts;</h1>
-                <p class="lead">Pod <a href="https://zacniewski.gitlab.io/teaching/2019-android/" target="_blank">linkiem</a> znajduje się wersja dotychczas obowiązująca dla osób, które chcą zadania realizować w języku Java &#127773;</p>
+            <div class="container d-flex flex-column align-self-center">
+                <i class="fas fa-network-wired fa-4x mb-4 align-self-center"></i>
+                {%  if iwconfig_dict.Frequency %}
+                    <h2 class="display-6 align-self-center">&#127796; Name of the network: <b>{{ iwconfig_dict.name }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; Frequency: <b>{{ iwconfig_dict.Frequency }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; Bit rate: <b>{{ iwconfig_dict.BitRate }}</b></h2>
+                    <h2 class="display-6 align-self-center">&#127796; Link quality: <b>{{ iwconfig_dict.LinkQuality }}</b></h2>
+                {%  else %}
+                    <h2 class="display-6 align-self-center">&#10060;  Your device is <b>not connected</b> to wireless network!</h2>
+                {%  endif %}
             </div>
         </div>
     </div>

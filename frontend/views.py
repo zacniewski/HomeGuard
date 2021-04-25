@@ -43,3 +43,8 @@ def network(request):
 
 def updates(request):
     return render(request, 'updates.html')
+
+
+def update_system(request):
+    subprocess.run(['bash', '-c', 'source /home/pi/Scripts/updates.sh'])
+    return render(request, 'confirmation-system-update.html')

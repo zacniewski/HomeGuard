@@ -1,9 +1,0 @@
-wlp5s0    IEEE 802.11  ESSID:"kchh_5G"  
-          Mode:Managed  Frequency:5.3 GHz  Access Point: 44:4E:6D:9D:9C:93   
-          Bit Rate=433.3 Mb/s   Tx-Power=20 dBm   
-          Retry short limit:7   RTS thr:off   Fragment thr:off
-          Power Management:on
-          Link Quality=63/70  Signal level=-47 dBm  
-          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
-          Tx excessive retries:0  Invalid misc:63   Missed beacon:0
-

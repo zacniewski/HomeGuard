@@ -1,29 +1,24 @@
 {%  extends 'base.html' %}
 {%  load static  %}
 
-{% block bodystyle %}
-    style="background-color: #e9ecef;"
-{%  endblock bodystyle %}
-
 {%  block content %}
+    <div class="container-fluid">
+        <h1 class="mt-4 font-weight-bold">Updates</h1>
 
-    <div class="container text-center mb-5 mt-4 p-5">
-        <h3 class="display-3 font-weight-bold">Home Guard system</h3>
-    </div>
-    <div class="d-flex flex-row justify-content-around align mt-5">
-      <div class="p-2">
-          <img class="mx-auto d-block w-50 mb-4 mt-4"
-               src="{%  static 'images/Raspberry_Pi_Logo.svg' %}"
-          />
-    </div>
-      <div class="p-2">
-          <ul class="text-dark display-4 list-unstyled text-justify">
-              <li class="mb-4">&#9989; Based on Raspberry Pi 4</li>
-              <li class="mb-4">&#9989; Works with different cameras</li>
-              <li class="mb-4">&#9989; Allows the use of various sensors</li>
-              <li class="mb-4">&#9989; Available via mobile app</li>
-              <li>&#9989; Free updates</li>
-          </ul>
-      </div>
+        <div class="jumbotron jumbotron-fluid">
+             <div class="container d-flex flex-column align-self-center">
+                <i class="fas fa-arrow-circle-up fa-4x mb-4 align-self-center"></i>
+                    <h2 class="display-6 align-self-center">&#127796; Update Home Guard application</h2>
+                    <button type="button" class="btn btn-primary btn-lg">Update Home Guard</button>
+            </div>
+        </div>
+
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container d-flex flex-column align-self-center">
+                <i class="fas fa-arrow-circle-up fa-4x mb-4 align-self-center"></i>
+                <h2 class="display-6 align-self-center">&#127796; Update operating system (OS) of your device</h2>
+                <a href="{% url 'frontend:update_system' %}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Update my OS</a>
+            </div>
+        </div>
     </div>
 {% endblock content %}

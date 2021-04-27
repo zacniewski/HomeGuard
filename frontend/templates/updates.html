@@ -8,17 +8,25 @@
         <div class="jumbotron jumbotron-fluid">
              <div class="container d-flex flex-column align-self-center">
                 <i class="fas fa-arrow-circle-up fa-4x mb-4 align-self-center"></i>
-                    <h2 class="display-6 align-self-center">&#127796; Update Home Guard application</h2>
-                    <button type="button" class="btn btn-primary btn-lg">Update Home Guard</button>
+                <h2 class="display-6 align-self-center mb-5">&#127796; Update Home Guard application</h2>
+                <h2 class="display-6 align-self-center mb-5">&#9940; Comparing date of current versions with date of Github version</h2>
+                <button type="button" class="btn btn-primary btn-lg w-25 align-self-center mt-5">
+                    <a href="{% url 'frontend:update_system' %}" class="text-white " aria-pressed="true">Update Home Guard</a></h3>
+                </button>
             </div>
         </div>
 
         <div class="jumbotron jumbotron-fluid">
-            <div class="container d-flex flex-column align-self-center">
+            <div class="container d-flex flex-column align-content-center">
                 <i class="fas fa-arrow-circle-up fa-4x mb-4 align-self-center"></i>
-                <h2 class="display-6 align-self-center">&#127796; Update operating system (OS) of your device</h2>
-                <a href="{% url 'frontend:update_system' %}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Update my OS</a>
+                <h2 class="display-6 align-self-center mb-5">&#127796; Update operating system (OS) of your device</h2>
+                <h2 class="display-6 align-self-center mb-5">&#9940; Comparing date of current versions with date of Github version</h2>
+
+                <button type="button" class="btn btn-primary btn-lg align-self-center w-25 mt-5" id="update_os_button">
+                    <a href="{% url 'frontend:update_system' %}" class="text-white " aria-pressed="true">Update my OS</a></h3>
+                </button>
             </div>
         </div>
     </div>
+
 {% endblock content %}

@@ -1,8 +1,3 @@
-/*!
-    * Start Bootstrap - SB Admin v6.0.2 (https://startbootstrap.com/template/sb-admin)
-    * Copyright 2013-2020 Start Bootstrap
-    * Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-sb-admin/blob/master/LICENSE)
-    */
     (function($) {
     "use strict";
 
@@ -20,3 +15,14 @@
         $("body").toggleClass("sb-sidenav-toggled");
     });
 })(jQuery);
+
+$(document).ready(function() {
+    $("#update_os_button").click(function() {
+      // disable button
+      $(this).prop("disabled", true);
+      // add spinner to button
+      $(this).html(
+        `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating system, wait a moment ...`
+      );
+    });
+});

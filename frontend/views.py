@@ -1,6 +1,6 @@
 import subprocess
+from time import sleep
 
-from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
@@ -46,5 +46,6 @@ def updates(request):
 
 
 def update_system(request):
+    sleep(5)
     subprocess.run(['bash', '-c', 'source /home/pi/Scripts/updates.sh'])
     return render(request, 'confirmation-system-update.html')

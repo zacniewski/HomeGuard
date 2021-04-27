@@ -10,9 +10,15 @@
                 <i class="fas fa-arrow-circle-up fa-4x mb-4 align-self-center"></i>
                 <h2 class="display-6 align-self-center mb-5">&#127796; Update Home Guard application</h2>
                 <h2 class="display-6 align-self-center mb-5">&#9940; Comparing date of current versions with date of Github version</h2>
-                <button type="button" class="btn btn-primary btn-lg w-25 align-self-center mt-5">
-                    <a href="{% url 'frontend:update_system' %}" class="text-white " aria-pressed="true">Update Home Guard</a></h3>
-                </button>
+                <a
+                     href="{% url 'frontend:update_system' %}"
+                     id="update_home_guard_button"
+                     class="btn btn-primary btn-lg w-25 align-self-center mt-5"
+                     role="button"
+                     aria-disabled="true"
+                >
+                     Update Home Guard
+                </a>
             </div>
         </div>
 
@@ -21,10 +27,15 @@
                 <i class="fas fa-arrow-circle-up fa-4x mb-4 align-self-center"></i>
                 <h2 class="display-6 align-self-center mb-5">&#127796; Update operating system (OS) of your device</h2>
                 <h2 class="display-6 align-self-center mb-5">&#9940; Comparing date of current versions with date of Github version</h2>
-
-                <button type="button" class="btn btn-primary btn-lg align-self-center w-25 mt-5" id="update_os_button">
-                    <a href="{% url 'frontend:update_system' %}" class="text-white " aria-pressed="true">Update my OS</a></h3>
-                </button>
+                <a
+                     href="{% url 'frontend:update_system' %}"
+                     id="update_os_button"
+                     class="btn btn-primary btn-lg w-25 align-self-center mt-5"
+                     role="button"
+                     aria-disabled="true"
+                >
+                     Update OS
+                </a>
             </div>
         </div>
     </div>

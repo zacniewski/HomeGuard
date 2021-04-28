@@ -47,8 +47,12 @@ You can find many useful hints [here](https://www.digitalocean.com/community/tut
 ## Self-signed certificate
   * useful information from [Digital Ocean](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-18-04),
 
-
-
 ## Applying changes without reboot
   ```sudo systemctl restart uwsgi```  and  
   ```sudo systemctl restart nginx```
+
+## Install OpenCV 4
+  * follow [these](https://www.pyimagesearch.com/2019/09/16/install-opencv-4-on-raspberry-pi-4-and-raspbian-buster/) steps of PyImageSearch creator,
+  * April 2021, OpenCV 4.5.2 is installed in HomeGuard system,
+  * in [this](https://www.pyimagesearch.com/2018/08/15/how-to-install-opencv-4-on-ubuntu/) article, way to install OpenCV 4 on Ubuntu is presented,
+  the only thing to correct is the path to cv2***.so file, which will be symlinked later. The correct path is presented under the first link.

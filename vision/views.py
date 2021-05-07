@@ -14,6 +14,9 @@ class VideoCamera:
 
     def get_frame(self):
         success, image = self.video.read()
+        # if frame is read correctly 'success'' is True
+        if not success:
+            print("Can't receive frame (stream end?). Exiting ...")
 
         # We are using Motion JPEG, but OpenCV defaults to capture raw images,
         # so we must encode it into JPEG in order to correctly display the

@@ -4,9 +4,10 @@ import imutils
 import time
 
 
-class VideoCamera(object):
+class VideoCamera:
     def __init__(self):
-        self.video = cv2.VideoCapture(1)
+        self.video = cv2.VideoCapture(0)
+        time.sleep(2.0)
 
     def __del__(self):
         self.video.release()

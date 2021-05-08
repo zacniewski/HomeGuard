@@ -1,6 +1,7 @@
 from django.http import StreamingHttpResponse
 import cv2
 import imutils
+import numpy as np
 import time
 
 from imutils.video import VideoStream
@@ -11,16 +12,20 @@ time.sleep(2.0)
 
 
 def test_usb_camera(request):
-    # loop over frames from the video stream
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        print("Cannot open camera")
+        exit()
     while True:
-        # read the next frame from the video stream, resize it,
-        # convert the frame to grayscale, and blur it
-        frame = vs.read()
-        print(frame)
-        if not frame:
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+        # if frame is read correctly ret is True
+        if not ret:
             print("Can't receive frame (stream end?). Exiting ...")
-        frame = imutils.resize(frame, width=400)
-        print
+            break
+        # Our operations on the frame come here
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
         ret, jpeg = cv2.imencode(".jpg", frame)
         return jpeg.tobytes()
 

@@ -1,13 +1,8 @@
-from django.http import StreamingHttpResponse
+from django.views.decorators import gzip
+from django.http import StreamingHttpResponse, HttpResponse
 import cv2
-import imutils
-import numpy as np
+import threading
 import time
-
-from imutils.video import VideoStream
-
-
-# vs = VideoStream(src=0).start()
 
 
 def test_usb_camera(request):
@@ -28,37 +23,40 @@ def test_usb_camera(request):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         ret, jpeg = cv2.imencode(".jpg", frame)
-        return jpeg.tobytes()
+        return HttpResponse("Return")
+        # return jpeg.tobytes()
 
 
 class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0)
-        time.sleep(2.0)
+        (self.grabbed, self.frame) = self.video.read()
+        threading.Thread(target=self.update, args=()).start()
 
     def __del__(self):
         self.video.release()
 
     def get_frame(self):
-        success, image = self.video.read()
-        # if frame is read correctly 'success'' is True
-        if not success:
-            print("Can't receive frame (stream end?). Exiting ...")
-
-        # We are using Motion JPEG, but OpenCV defaults to capture raw images,
-        # so we must encode it into JPEG in order to correctly display the
-        # video stream.
-        image = imutils.resize(image, width=400)
-        ret, jpeg = cv2.imencode(".jpg", image)
+        image = self.frame
+        _, jpeg = cv2.imencode('.jpg', image)
         return jpeg.tobytes()
+
+    def update(self):
+        while True:
+            (self.grabbed, self.frame) = self.video.read()
 
 
 def gen(camera):
     while True:
         frame = camera.get_frame()
-        yield b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n"
+        yield(b'--frame\r\n'
+              b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 
+@gzip.gzip_page
 def camera_usb(request):
-    return StreamingHttpResponse(gen(VideoCamera()),
-                                 content_type='multipart/x-mixed-replace; boundary=frame')
+    try:
+        cam = VideoCamera()
+        return StreamingHttpResponse(gen(cam), content_type="multipart/x-mixed-replace;boundary=frame")
+    except:
+        print("Something went wrong")

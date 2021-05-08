@@ -7,12 +7,13 @@ import time
 from imutils.video import VideoStream
 
 
-vs = VideoStream(src=0).start()
-time.sleep(2.0)
+# vs = VideoStream(src=0).start()
 
 
 def test_usb_camera(request):
     cap = cv2.VideoCapture(0)
+    time.sleep(2.0)
+
     if not cap.isOpened():
         print("Cannot open camera")
         exit()

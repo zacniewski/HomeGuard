@@ -3,8 +3,26 @@ import cv2
 import imutils
 import time
 
+from imutils.video import VideoStream
 
-class VideoCamera:
+"""
+vs = VideoStream(src=0).start()
+time.sleep(2.0)
+
+
+def test_usb_camera(request):
+    # loop over frames from the video stream
+    while True:
+        # read the next frame from the video stream, resize it,
+        # convert the frame to grayscale, and blur it
+        frame = vs.read()
+        frame = imutils.resize(frame, width=400)
+        ret, jpeg = cv2.imencode(".jpg", frame)
+        return jpeg.tobytes()
+"""
+
+
+class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0)
         time.sleep(2.0)

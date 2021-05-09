@@ -26,7 +26,7 @@ SECRET_KEY = 'qkb(d-$q)^$-32748!wlcq&n&19=(s+jmy70k-$hzr8ab3w@bh'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['raspberrypi.local', '127.0.0.1']
+ALLOWED_HOSTS = ['raspberrypi.local', '127.0.0.1', '192.168.178.45']
 
 # Application definition
 INSTALLED_APPS = [

@@ -1,38 +1,12 @@
 from django.views.decorators import gzip
-from django.http import StreamingHttpResponse, HttpResponse
+from django.http import StreamingHttpResponse
 import cv2
 import threading
-import time
-
-
-def test_usb_camera(request):
-    cap = cv2.VideoCapture(0)
-    time.sleep(2.0)
-
-    if not cap.isOpened():
-        print("Cannot open camera")
-        exit()
-    while True:
-        # Capture frame-by-frame
-        ret, frame = cap.read()
-        # if frame is read correctly ret is True
-        if not ret:
-            print("Can't receive frame (stream end?). Exiting ...")
-            break
-        # Our operations on the frame come here
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        ret, jpeg = cv2.imencode(".jpg", frame)
-        return HttpResponse("Return")
-        # return jpeg.tobytes()
-
-
-global cam
 
 
 class VideoCamera(object):
     def __init__(self):
-        self.video = cv2.VideoCapture(-1)
+        self.video = cv2.VideoCapture(0)
         (self.grabbed, self.frame) = self.video.read()
         threading.Thread(target=self.update, args=()).start()
 

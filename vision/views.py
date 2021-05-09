@@ -8,6 +8,8 @@ class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0)
         (self.grabbed, self.frame) = self.video.read()
+        if not self.grabbed:
+            print("Can't open camera")
         threading.Thread(target=self.update, args=()).start()
 
     def __del__(self):

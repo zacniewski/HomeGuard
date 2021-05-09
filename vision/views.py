@@ -17,7 +17,6 @@ class VideoCamera(object):
 
     def get_frame(self):
         image = self.frame
-        print(f"Frame (from gen) shape: {self.frame.shape}")
         _, jpeg = cv2.imencode('.jpg', image)
         return jpeg.tobytes()
 

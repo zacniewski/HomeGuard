@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import camera_usb, test_usb_camera
+from .views import camera_usb
 
 app_name = "vision"
 urlpatterns = [

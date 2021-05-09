@@ -27,6 +27,9 @@ def test_usb_camera(request):
         # return jpeg.tobytes()
 
 
+global cam
+
+
 class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(-1)

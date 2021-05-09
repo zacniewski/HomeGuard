@@ -29,7 +29,7 @@ def test_usb_camera(request):
 
 class VideoCamera(object):
     def __init__(self):
-        self.video = cv2.VideoCapture(0)
+        self.video = cv2.VideoCapture(-1)
         (self.grabbed, self.frame) = self.video.read()
         threading.Thread(target=self.update, args=()).start()
 
@@ -38,6 +38,7 @@ class VideoCamera(object):
 
     def get_frame(self):
         image = self.frame
+        print(f"Frame (from gen) shape: {self.frame.shape}")
         _, jpeg = cv2.imencode('.jpg', image)
         return jpeg.tobytes()
 

@@ -56,3 +56,9 @@ You can find many useful hints [here](https://www.digitalocean.com/community/tut
   * April 2021, OpenCV 4.5.2 is installed in HomeGuard system,
   * in [this](https://www.pyimagesearch.com/2018/08/15/how-to-install-opencv-4-on-ubuntu/) article, way to install OpenCV 4 on Ubuntu is presented,
   the only thing to correct is the path to cv2***.so file, which will be symlinked later. The correct path is presented under the first link.
+    
+## Permissions to use camera in production mode
+  * changing ```sudo chmod 666 /dev/video0/``` doesn't work
+  * add ```www-data``` user to 'video' group
+  * changing owner to pi:video in 'uwsgi.service' doesn't work
+  * waiting for solution ...

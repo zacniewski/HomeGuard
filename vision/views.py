@@ -2,11 +2,13 @@ from django.views.decorators import gzip
 from django.http import StreamingHttpResponse
 import cv2
 import threading
+from time import sleep
 
 
 class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0)
+        sleep(2.0)
         (self.grabbed, self.frame) = self.video.read()
         if not self.grabbed:
             print("Can't open camera")

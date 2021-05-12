@@ -1,5 +1,7 @@
 from django.views.decorators import gzip
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.http import StreamingHttpResponse, HttpResponseServerError
+
 import cv2
 import threading
 from time import sleep
@@ -37,6 +39,7 @@ def gen(camera):
 
 
 @gzip.gzip_page
+@xframe_options_exempt
 def camera_usb_streaming(request):
     try:
         cam = VideoCamera()

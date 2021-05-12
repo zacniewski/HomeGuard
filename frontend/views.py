@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 
 
 class IndexView(TemplateView):
-    template_name = "index.html"
+    template_name = "frontend/index.html"
 
 
 def network(request):
@@ -38,14 +38,14 @@ def network(request):
     for item in list_with_ifconfig_data_wlan0:
         if 'broadcast' in item:
             network_dict['wireless_ip'] = item[item.find('inet')+4: item.rfind('netmask')-1]
-    return render(request, 'network.html', {'network_dict': network_dict})
+    return render(request, 'frontend/network.html', {'network_dict': network_dict})
 
 
 def updates(request):
-    return render(request, 'updates.html')
+    return render(request, 'frontend/updates.html')
 
 
 def update_system(request):
     sleep(5)
     subprocess.run(['bash', '-c', 'source /home/pi/Scripts/updates.sh'])
-    return render(request, 'confirmation-system-update.html')
+    return render(request, 'frontend/confirmation-system-update.html')

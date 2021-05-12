@@ -1,4 +1,5 @@
 {%  extends 'frontend/base.html' %}
+{%  load static %}
 
 {%  block content %}
     <div class="container-fluid">
@@ -22,13 +23,14 @@
         <div class="row">
           <div class="col-sm-6">
             <div class="card">
-                  <!--<img src="{#%  url 'vision:camera_usb' %#}">-->
-                  <img src="{%  static 'images/No_image_available_500_x_500.svg.png' %}">
-                  <div class="card-body">
+                <iframe height=100% width="100%" src="{% url 'vision:camera_usb_streaming' %}">
+                </iframe>
+                <img src="{%  static 'images/No_image_available_500_x_500.svg.png' %}" width="640px" height="480px">
+                <div class="card-body">
                     <h5 class="card-title">Special title treatment</h5>
                     <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
                     <a href="#" class="btn btn-primary">Go somewhere</a>
-                  </div>
+                </div>
             </div>
           </div>
 

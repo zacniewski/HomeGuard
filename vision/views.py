@@ -1,5 +1,5 @@
 from django.views.decorators import gzip
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, HttpResponseServerError
 import cv2
 import threading
 from time import sleep
@@ -8,6 +8,8 @@ from time import sleep
 class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0)
+        self.video.set(3, 640)
+        self.video.set(4, 480)
         sleep(2.0)
         (self.grabbed, self.frame) = self.video.read()
         if not self.grabbed:
@@ -35,9 +37,9 @@ def gen(camera):
 
 
 @gzip.gzip_page
-def camera_usb(request):
+def camera_usb_streaming(request):
     try:
         cam = VideoCamera()
         return StreamingHttpResponse(gen(cam), content_type="multipart/x-mixed-replace;boundary=frame")
-    except:
-        print("Something went wrong")
+    except HttpResponseServerError as e:
+        print("Something went wrong!")

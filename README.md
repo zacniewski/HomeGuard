@@ -62,3 +62,7 @@ You can find many useful hints [here](https://www.digitalocean.com/community/tut
   * add ```www-data``` user to 'video' group
   * changing owner to pi:video in 'uwsgi.service' doesn't work
   * waiting for solution ...
+
+## Frames in template
+  * on RPi 4 Logitech, Inc. C922 Pro Stream Webcam displays image in 640 x 480 format
+  * on my laptop webcam displays image in 2304 x 1536 format

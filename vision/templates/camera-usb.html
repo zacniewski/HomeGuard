@@ -1,49 +1,27 @@
 {%  extends 'frontend/base.html' %}
-{%  load static %}
+{%  load static  %}
 
 {%  block content %}
     <div class="container-fluid">
-        <h1 class="mt-4 font-weight-bold">Network connections</h1>
+        <h1 class="mt-4 font-weight-bold">Web Camera (USB)</h1>
+
         <div class="jumbotron jumbotron-fluid">
-            <div class="container d-flex flex-column align-self-center">
-                <i class="fas fa-wifi fa-4x mb-4 align-self-center"></i>
-                {%  if network_dict.Frequency %}
-                    <h2 class="display-6 align-self-center">&#127796; Name of the network: <b>{{ network_dict.name }}</b></h2>
-                    <h2 class="display-6 align-self-center">&#127796; IP (wireless) of your device: <b>{{ network_dict.wireless_ip }}</b></h2>
-                    <h2 class="display-6 align-self-center">&#127796; Frequency: <b>{{ network_dict.Frequency }}</b></h2>
-                    <h2 class="display-6 align-self-center">&#127796; Bit rate: <b>{{ network_dict.BitRate }}</b></h2>
-                    <h2 class="display-6 align-self-center">&#127796; Link quality: <b>{{ network_dict.LinkQuality }}</b></h2>
-                {%  else %}
-                    <h2 class="display-6 align-self-center">&#10060;  Your device is <b>not connected</b> to any wireless network!</h2>
-                {%  endif %}
+            <div class="d-block mx-auto">
+                <iframe
+                        class="text-center mx-auto d-block"
+                        src="{% url 'vision:camera_usb_streaming' %}"
+                        frameborder="0"
+                        width="640"
+                        height="480"
+                        scrolling="no"
 
-            </div>
-        </div>
-
-        <div class="row">
-          <div class="col-sm-6">
-            <div class="card">
-                <iframe width="640px" height="480px" src="{% url 'vision:camera_usb_streaming' %}">
+                >
                 </iframe>
-                <img src="{%  static 'images/No_image_available_500_x_500.svg.png' %}" width="640px" height="480px">
-                <div class="card-body">
-                    <h5 class="card-title">Special title treatment</h5>
-                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                    <a href="#" class="btn btn-primary">Go somewhere</a>
-                </div>
             </div>
-          </div>
 
-          <div class="col-sm-6">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Special title treatment</h5>
-                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                <a href="#" class="btn btn-primary">Go somewhere</a>
-              </div>
-            </div>
-          </div>
         </div>
-
     </div>
+
 {% endblock content %}
+
+

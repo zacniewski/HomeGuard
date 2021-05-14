@@ -9,7 +9,7 @@ from time import sleep
 
 class VideoCamera(object):
     def __init__(self):
-        self.video = cv2.VideoCapture(0)
+        self.video = cv2.VideoCapture(0, cv2.CAP_V4L)
         self.video.set(3, 640)
         self.video.set(4, 480)
         sleep(2.0)

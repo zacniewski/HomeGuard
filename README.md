@@ -28,6 +28,7 @@
 ## uWSGI
   * install both system-wide (sudo -H pip3 install uwsgi) and in virtual environment (pip install uwsgi),  
   * copy (with sudo) 'homeguard.ini' file to /etc/uwsgi/sites/  
+  * check logs with ```sudo journalctl -u uwsgi```
 
 ## systemd
   * copy (with sudo) 'uwsgi.service' file to /etc/systemd/system/  

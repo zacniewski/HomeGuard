@@ -124,7 +124,9 @@ MEDIA_URL = "/media/"
 
 # ścieżka do zmiany na innym komputerze !!!
 STATIC_ROOT = "/home/pi/HomeGuard/staticfiles"
+"""
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
     "/home/pi/HomeGuard/static"
 ]
+"""

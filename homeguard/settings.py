@@ -127,7 +127,7 @@ STATIC_ROOT = "/home/pi/HomeGuard/static"
 # STATIC_ROOT = "/home/artur/Desktop/MY-CURRENT-PROJECTS/HomeGuard/static"
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-    # "/home/pi/HomeGuard/staticfiles"
+    # os.path.join(BASE_DIR, "static"),
+    "/home/pi/HomeGuard/staticfiles",
 ]
 

@@ -1,0 +1,370 @@
+I'm building a production server on Raspberry Pi 4. Web app is written in Django. I used uWSGI as an application server and Nginx as a reverse proxy. I followed many tips from [Digital Ocean](https://www.digitalocean.com/community/tutorials/how-to-serve-django-applications-with-uwsgi-and-nginx-on-ubuntu-16-04).
+One of the tasks is to stream frames from USB camera connected to RPi. My inspirations was [post](https://www.pyimagesearch.com/2019/09/02/opencv-stream-video-to-web-browser-html-page/) from PyImageSearch, but I wanted to do it in Django. Class responsible for opening the camera looks as follows:
+
+```
+# views.py
+from django.views.decorators import gzip
+from django.http import StreamingHttpResponse
+import cv2
+import threading
+
+
+class VideoCamera(object):
+    def __init__(self):
+        self.video = cv2.VideoCapture(0)
+        (self.grabbed, self.frame) = self.video.read()
+        if not self.grabbed:
+            print("Can't open camera")
+        threading.Thread(target=self.update, args=()).start()
+
+    def __del__(self):
+        self.video.release()
+
+    def get_frame(self):
+        image = self.frame
+        _, jpeg = cv2.imencode('.jpg', image)
+        return jpeg.tobytes()
+
+    def update(self):
+        while True:
+            (self.grabbed, self.frame) = self.video.read()
+
+
+def gen(camera):
+    while True:
+        frame = camera.get_frame()
+        yield(b'--frame\r\n'
+              b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+
+@gzip.gzip_page
+def camera_usb(request):
+    try:
+        cam = VideoCamera()
+        return StreamingHttpResponse(gen(cam), content_type="multipart/x-mixed-replace;boundary=frame")
+    except:
+        print("Something went wrong")
+```
+and then I use code of 'camera_usb' view in urls.py and in template. It works fine both on my laptop and on RPi 4, but only on development server. After running on production server I get following message from `sudo systemctl status uwsgi`:  
+```
+uwsgi.service - uWSGI Emperor service
+   Loaded: loaded (/etc/systemd/system/uwsgi.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sun 2021-05-09 22:08:28 CEST; 24s ago
+  Process: 1437 ExecStartPre=/bin/bash -c mkdir -p /run/uwsgi; chown pi:www-data /run/uwsgi (code=exited, status=0/SUCCESS)
+ Main PID: 1440 (uwsgi)
+   Status: "The Emperor is governing 1 vassals"
+    Tasks: 13 (limit: 4915)
+   CGroup: /system.slice/uwsgi.service
+           ├─1440 /usr/local/bin/uwsgi --emperor /etc/uwsgi/sites
+           ├─1441 /usr/local/bin/uwsgi --ini homeguard.ini
+           ├─1442 /usr/local/bin/uwsgi --ini homeguard.ini
+           ├─1443 /usr/local/bin/uwsgi --ini homeguard.ini
+           ├─1444 /usr/local/bin/uwsgi --ini homeguard.ini
+           ├─1445 /usr/local/bin/uwsgi --ini homeguard.ini
+           ├─1446 /usr/local/bin/uwsgi --ini homeguard.ini
+           ├─1447 /usr/local/bin/uwsgi --ini homeguard.ini
+           ├─1448 /usr/local/bin/uwsgi --ini homeguard.ini
+           ├─1449 /usr/local/bin/uwsgi --ini homeguard.ini
+           ├─1450 /usr/local/bin/uwsgi --ini homeguard.ini
+           └─1451 /usr/local/bin/uwsgi --ini homeguard.ini
+
+May 09 22:08:43 raspberrypi uwsgi[1440]: Can't open camera
+May 09 22:08:43 raspberrypi uwsgi[1440]: Traceback (most recent call last):
+May 09 22:08:43 raspberrypi uwsgi[1440]:   File "/home/pi/HomeGuard/my_env/lib/python3.7/site-packages/django/utils/text.py", line
+May 09 22:08:43 raspberrypi uwsgi[1440]:     for item in sequence:
+May 09 22:08:43 raspberrypi uwsgi[1440]:   File "/home/pi/HomeGuard/vision/views.py", line 30, in gen
+May 09 22:08:43 raspberrypi uwsgi[1440]:     frame = camera.get_frame()
+May 09 22:08:43 raspberrypi uwsgi[1440]:   File "/home/pi/HomeGuard/vision/views.py", line 20, in get_frame
+May 09 22:08:43 raspberrypi uwsgi[1440]:     _, jpeg = cv2.imencode('.jpg', image)
+May 09 22:08:43 raspberrypi uwsgi[1440]: cv2.error: OpenCV(4.5.2) /home/pi/opencv/modules/imgcodecs/src/loadsave.cpp:896: error: (CV_Assert(!image.empty());)
+```
+My uWSGI configuration file lokks as follows:
+```
+[uwsgi]
+
+# Django-related settings
+project = homeguard
+
+# user
+uid = pi
+# the base directory (full path)
+base = /home/pi/HomeGuard
+chdir = %(base)
+# the virtualenv (full path)
+home = %(base)/my_env
+virtualenv = %(home)
+
+pythonpath = %(base)
+
+env = DJANGO_SETTINGS_MODULE=homeguard.settings
+# Django's wsgi file
+module = %(project).wsgi:application
+# process-related settings
+# master
+master          = true
+# maximum number of worker processes
+processes       = 10
+# the socket (use the full path to be safe
+socket = /run/uwsgi/%(project).sock
+# ... with appropriate permissions - may be needed
+chown-socket = %(uid):www-data
+chmod-socket = 660
+
+# clear environment on exit
+vacuum          = true
+```
+And my Nginx configuration looks as follows:
+```
+# configuration of the server
+server {
+    # the port your site will be served on
+    listen 80;
+    # the domain name it will serve for
+    server_name raspberrypi.local; #substitute your machine's IP address or FQDN
+    location = /favicon.ico { access_log off; log_not_found off; }
+    charset utf-8;
+
+    # max upload size
+    client_max_body_size 75M;   # adjust to taste
+
+    # Django media
+    location /media/  {
+        alias /home/pi/HomeGuard/media/;  # your Django project's media files - amend as required
+    }
+
+    location /static/ {
+        alias /home/pi/HomeGuard/static/; # your Django project's static files - amend as required
+    }
+
+    # Finally, send all non-media requests to the Django server.
+    location / {
+        uwsgi_pass  unix:/run/uwsgi/homeguard.sock;
+        include     uwsgi_params; # the uwsgi_params file you installed
+    }
+}
+```
+
+My uwsgi.service file looks as follows:  
+```
+[Unit]
+Description=uWSGI Emperor service
+
+[Service]
+ExecStartPre=/bin/bash -c 'mkdir -p /run/uwsgi; chown pi:www-data /run/uwsgi'
+ExecStart=/usr/local/bin/uwsgi --emperor /etc/uwsgi/sites
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
+```
+
+After running `sudo journalctl -u uwsgi` command, the log is as follows:  
+```
+May 16 19:00:57 raspberrypi systemd[1]: Starting uWSGI Emperor service...
+May 16 19:00:58 raspberrypi uwsgi[431]: *** Starting uWSGI 2.0.19.1 (32bit) on [Sun May 16 19:00:58 2021] ***
+May 16 19:00:58 raspberrypi uwsgi[431]: compiled with version: 8.3.0 on 17 June 2020 09:19:11
+May 16 19:00:58 raspberrypi uwsgi[431]: os: Linux-5.10.17-v7l+ #1414 SMP Fri Apr 30 13:20:47 BST 2021
+May 16 19:00:58 raspberrypi uwsgi[431]: nodename: raspberrypi
+May 16 19:00:58 raspberrypi uwsgi[431]: machine: armv7l
+May 16 19:00:58 raspberrypi uwsgi[431]: clock source: unix
+May 16 19:00:58 raspberrypi uwsgi[431]: pcre jit disabled
+May 16 19:00:58 raspberrypi uwsgi[431]: detected number of CPU cores: 4
+May 16 19:00:58 raspberrypi uwsgi[431]: current working directory: /
+May 16 19:00:58 raspberrypi uwsgi[431]: detected binary path: /home/pi/HomeGuard/my_env/bin/uwsgi
+May 16 19:00:58 raspberrypi uwsgi[431]: uWSGI running as root, you can use --uid/--gid/--chroot options
+May 16 19:00:58 raspberrypi uwsgi[431]: *** WARNING: you are running uWSGI as root !!! (use the --uid flag) ***
+May 16 19:00:58 raspberrypi uwsgi[431]: *** WARNING: you are running uWSGI without its master process manager ***
+May 16 19:00:58 raspberrypi uwsgi[431]: your processes number limit is 60527
+May 16 19:00:58 raspberrypi uwsgi[431]: your memory page size is 4096 bytes
+May 16 19:00:58 raspberrypi uwsgi[431]: detected max file descriptor number: 1024
+May 16 19:00:58 raspberrypi uwsgi[431]: *** starting uWSGI Emperor ***
+May 16 19:00:58 raspberrypi systemd[1]: Started uWSGI Emperor service.
+May 16 19:00:58 raspberrypi uwsgi[431]: *** has_emperor mode detected (fd: 7) ***
+May 16 19:00:58 raspberrypi uwsgi[431]: [uWSGI] getting INI configuration from homeguard.ini
+May 16 19:00:58 raspberrypi uwsgi[431]: *** Starting uWSGI 2.0.19.1 (32bit) on [Sun May 16 19:00:58 2021] ***
+May 16 19:00:58 raspberrypi uwsgi[431]: compiled with version: 8.3.0 on 17 June 2020 09:19:11
+May 16 19:00:58 raspberrypi uwsgi[431]: os: Linux-5.10.17-v7l+ #1414 SMP Fri Apr 30 13:20:47 BST 2021
+May 16 19:00:58 raspberrypi uwsgi[431]: nodename: raspberrypi
+May 16 19:00:58 raspberrypi uwsgi[431]: machine: armv7l
+May 16 19:00:58 raspberrypi uwsgi[431]: clock source: unix
+May 16 19:00:58 raspberrypi uwsgi[431]: pcre jit disabled
+May 16 19:00:58 raspberrypi uwsgi[431]: detected number of CPU cores: 4
+May 16 19:00:58 raspberrypi uwsgi[431]: current working directory: /etc/uwsgi/sites
+May 16 19:00:58 raspberrypi uwsgi[431]: detected binary path: /home/pi/HomeGuard/my_env/bin/uwsgi
+May 16 19:00:58 raspberrypi uwsgi[431]: chdir() to /home/pi/HomeGuard
+May 16 19:00:58 raspberrypi uwsgi[431]: your processes number limit is 60527
+May 16 19:00:58 raspberrypi uwsgi[431]: your memory page size is 4096 bytes
+May 16 19:00:58 raspberrypi uwsgi[431]: detected max file descriptor number: 1024
+May 16 19:00:58 raspberrypi uwsgi[431]: lock engine: pthread robust mutexes
+May 16 19:00:58 raspberrypi uwsgi[431]: thunder lock: disabled (you can enable it with --thunder-lock)
+May 16 19:00:58 raspberrypi uwsgi[431]: uwsgi socket 0 bound to UNIX address /run/uwsgi/homeguard.sock fd 3
+May 16 19:00:58 raspberrypi uwsgi[431]: setuid() to 1000
+May 16 19:00:58 raspberrypi uwsgi[431]: Python version: 3.7.3 (default, Jan 22 2021, 20:04:44)  [GCC 8.3.0]
+May 16 19:00:58 raspberrypi uwsgi[431]: PEP 405 virtualenv detected: /home/pi/HomeGuard/my_env
+May 16 19:00:58 raspberrypi uwsgi[431]: Set PythonHome to /home/pi/HomeGuard/my_env
+May 16 19:01:00 raspberrypi uwsgi[431]: Python main interpreter initialized at 0x6baf20
+May 16 19:01:00 raspberrypi uwsgi[431]: python threads support enabled
+May 16 19:01:00 raspberrypi uwsgi[431]: your server socket listen backlog is limited to 100 connections
+May 16 19:01:00 raspberrypi uwsgi[431]: your mercy for graceful operations on workers is 60 seconds
+May 16 19:01:00 raspberrypi uwsgi[431]: mapped 708488 bytes (691 KB) for 10 cores
+May 16 19:01:00 raspberrypi uwsgi[431]: *** Operational MODE: preforking ***
+May 16 19:01:00 raspberrypi uwsgi[431]: added /home/pi/HomeGuard/ to pythonpath.
+May 16 19:01:02 raspberrypi uwsgi[431]: WSGI app 0 (mountpoint='') ready in 2 seconds on interpreter 0x6baf20 pid: 502 (default app)
+May 16 19:01:02 raspberrypi uwsgi[431]: *** uWSGI is running in multiple interpreter mode ***
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI master process (pid: 502)
+May 16 19:01:02 raspberrypi uwsgi[431]: Sun May 16 19:01:02 2021 - [emperor] vassal homeguard.ini has been spawned
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 1 (pid: 557, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 2 (pid: 558, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: Sun May 16 19:01:02 2021 - [emperor] vassal homeguard.ini is ready to accept requests
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 3 (pid: 559, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 4 (pid: 560, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 5 (pid: 561, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 6 (pid: 562, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 7 (pid: 563, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 8 (pid: 564, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 9 (pid: 565, cores: 1)
+May 16 19:01:03 raspberrypi uwsgi[431]: spawned uWSGI worker 10 (pid: 566, cores: 1)
+May 16 19:03:18 raspberrypi uwsgi[431]: [pid: 564|app: 0|req: 1/1] 192.168.178.43 () {42 vars in 670 bytes} [Sun May 16 17:03:16 2021] GET / => generated 7861 byt
+May 16 19:03:18 raspberrypi uwsgi[431]: announcing my loyalty to the Emperor...
+May 16 19:03:18 raspberrypi uwsgi[431]: Sun May 16 19:03:18 2021 - [emperor] vassal homeguard.ini is now loyal
+May 16 19:16:48 raspberrypi uwsgi[431]: [pid: 558|app: 0|req: 1/2] 192.168.178.43 () {42 vars in 696 bytes} [Sun May 16 17:16:47 2021] GET /network/ => generated 
+May 16 19:16:48 raspberrypi uwsgi[431]: announcing my loyalty to the Emperor...
+May 16 19:16:48 raspberrypi uwsgi[431]: Sun May 16 19:16:48 2021 - [emperor] vassal homeguard.ini is now loyal
+May 16 19:17:01 raspberrypi uwsgi[431]: [pid: 558|app: 0|req: 2/3] 192.168.178.43 () {42 vars in 738 bytes} [Sun May 16 17:17:01 2021] GET /vision/camera-usb-ifra
+May 16 19:17:02 raspberrypi uwsgi[431]: [ WARN:0] global /home/pi/opencv/modules/videoio/src/cap_v4l.cpp (877) open VIDEOIO(V4L2): can't find camera device
+May 16 19:17:04 raspberrypi uwsgi[431]: Can't open camera
+May 16 19:17:04 raspberrypi uwsgi[431]: Traceback (most recent call last):
+May 16 19:17:04 raspberrypi uwsgi[431]:   File "/home/pi/HomeGuard/my_env/lib/python3.7/site-packages/django/utils/text.py", line 300, in compress_sequence
+May 16 19:17:04 raspberrypi uwsgi[431]:     for item in sequence:
+May 16 19:17:04 raspberrypi uwsgi[431]:     for item in sequence:
+May 16 19:17:04 raspberrypi uwsgi[431]:   File "/home/pi/HomeGuard/vision/views.py", line 36, in gen
+May 16 19:17:04 raspberrypi uwsgi[431]:     frame = camera.get_frame()
+May 16 19:17:04 raspberrypi uwsgi[431]:   File "/home/pi/HomeGuard/vision/views.py", line 26, in get_frame
+May 16 19:17:04 raspberrypi uwsgi[431]:     _, jpeg = cv2.imencode('.jpg', image)
+May 16 19:17:04 raspberrypi uwsgi[431]: cv2.error: OpenCV(4.5.2) /home/pi/opencv/modules/imgcodecs/src/loadsave.cpp:896: error: (-215:Assertion failed) !image.emp
+May 16 19:17:04 raspberrypi uwsgi[431]: [pid: 563|app: 0|req: 1/4] 192.168.178.43 () {42 vars in 761 bytes} [Sun May 16 17:17:01 2021] GET /vision/camera-usb-stre
+May 16 19:17:04 raspberrypi uwsgi[431]: announcing my loyalty to the Emperor...
+pi@raspberrypi:~ $ sudo service restart uwsgi
+restart: unrecognized service
+pi@raspberrypi:~ $ sudo systemctl restart uwsgi
+pi@raspberrypi:~ $ -ltrh /dev/video*
+-bash: -ltrh: command not found
+pi@raspberrypi:~ $ ls -ltrh /dev/video*
+crw-rw---- 1 root video 81, 0 May 16 19:00 /dev/video13
+crw-rw---- 1 root video 81, 3 May 16 19:00 /dev/video15
+crw-rw---- 1 root video 81, 4 May 16 19:00 /dev/video16
+crw-rw---- 1 root video 81, 6 May 16 19:00 /dev/video12
+crw-rw---- 1 root video 81, 5 May 16 19:00 /dev/video11
+crw-rw---- 1 root video 81, 1 May 16 19:00 /dev/video10
+crw-rw---- 1 root video 81, 2 May 16 19:00 /dev/video14
+crw-rw---- 1 root video 81, 8 May 16 19:00 /dev/video1
+crw-rw---- 1 root video 81, 7 May 16 19:00 /dev/video0
+pi@raspberrypi:~ $ sudo journalctl -u uwsgi
+-- Logs begin at Sun 2021-05-16 19:00:53 CEST, end at Sun 2021-05-16 19:41:49 CEST. --
+May 16 19:00:57 raspberrypi systemd[1]: Starting uWSGI Emperor service...
+May 16 19:00:58 raspberrypi uwsgi[431]: *** Starting uWSGI 2.0.19.1 (32bit) on [Sun May 16 19:00:58 2021] ***
+May 16 19:00:58 raspberrypi uwsgi[431]: compiled with version: 8.3.0 on 17 June 2020 09:19:11
+May 16 19:00:58 raspberrypi uwsgi[431]: os: Linux-5.10.17-v7l+ #1414 SMP Fri Apr 30 13:20:47 BST 2021
+May 16 19:00:58 raspberrypi uwsgi[431]: nodename: raspberrypi
+May 16 19:00:58 raspberrypi uwsgi[431]: machine: armv7l
+May 16 19:00:58 raspberrypi uwsgi[431]: clock source: unix
+May 16 19:00:58 raspberrypi uwsgi[431]: pcre jit disabled
+May 16 19:00:58 raspberrypi uwsgi[431]: detected number of CPU cores: 4
+May 16 19:00:58 raspberrypi uwsgi[431]: current working directory: /
+May 16 19:00:58 raspberrypi uwsgi[431]: detected binary path: /home/pi/HomeGuard/my_env/bin/uwsgi
+May 16 19:00:58 raspberrypi uwsgi[431]: uWSGI running as root, you can use --uid/--gid/--chroot options
+May 16 19:00:58 raspberrypi uwsgi[431]: *** WARNING: you are running uWSGI as root !!! (use the --uid flag) ***
+May 16 19:00:58 raspberrypi uwsgi[431]: *** WARNING: you are running uWSGI without its master process manager ***
+May 16 19:00:58 raspberrypi uwsgi[431]: your processes number limit is 60527
+May 16 19:00:58 raspberrypi uwsgi[431]: your memory page size is 4096 bytes
+May 16 19:00:58 raspberrypi uwsgi[431]: detected max file descriptor number: 1024
+May 16 19:00:58 raspberrypi uwsgi[431]: *** starting uWSGI Emperor ***
+May 16 19:00:58 raspberrypi systemd[1]: Started uWSGI Emperor service.
+May 16 19:00:58 raspberrypi uwsgi[431]: *** has_emperor mode detected (fd: 7) ***
+May 16 19:00:58 raspberrypi uwsgi[431]: [uWSGI] getting INI configuration from homeguard.ini
+May 16 19:00:58 raspberrypi uwsgi[431]: *** Starting uWSGI 2.0.19.1 (32bit) on [Sun May 16 19:00:58 2021] ***
+May 16 19:00:58 raspberrypi uwsgi[431]: compiled with version: 8.3.0 on 17 June 2020 09:19:11
+May 16 19:00:58 raspberrypi uwsgi[431]: os: Linux-5.10.17-v7l+ #1414 SMP Fri Apr 30 13:20:47 BST 2021
+May 16 19:00:58 raspberrypi uwsgi[431]: nodename: raspberrypi
+May 16 19:00:58 raspberrypi uwsgi[431]: machine: armv7l
+May 16 19:00:58 raspberrypi uwsgi[431]: clock source: unix
+May 16 19:00:58 raspberrypi uwsgi[431]: pcre jit disabled
+May 16 19:00:58 raspberrypi uwsgi[431]: detected number of CPU cores: 4
+May 16 19:00:58 raspberrypi uwsgi[431]: current working directory: /etc/uwsgi/sites
+May 16 19:00:58 raspberrypi uwsgi[431]: detected binary path: /home/pi/HomeGuard/my_env/bin/uwsgi
+May 16 19:00:58 raspberrypi uwsgi[431]: chdir() to /home/pi/HomeGuard
+May 16 19:00:58 raspberrypi uwsgi[431]: your processes number limit is 60527
+May 16 19:00:58 raspberrypi uwsgi[431]: your memory page size is 4096 bytes
+May 16 19:00:58 raspberrypi uwsgi[431]: detected max file descriptor number: 1024
+May 16 19:00:58 raspberrypi uwsgi[431]: lock engine: pthread robust mutexes
+May 16 19:00:58 raspberrypi uwsgi[431]: thunder lock: disabled (you can enable it with --thunder-lock)
+May 16 19:00:58 raspberrypi uwsgi[431]: uwsgi socket 0 bound to UNIX address /run/uwsgi/homeguard.sock fd 3
+May 16 19:00:58 raspberrypi uwsgi[431]: setuid() to 1000
+May 16 19:00:58 raspberrypi uwsgi[431]: Python version: 3.7.3 (default, Jan 22 2021, 20:04:44)  [GCC 8.3.0]
+May 16 19:00:58 raspberrypi uwsgi[431]: PEP 405 virtualenv detected: /home/pi/HomeGuard/my_env
+May 16 19:00:58 raspberrypi uwsgi[431]: Set PythonHome to /home/pi/HomeGuard/my_env
+May 16 19:01:00 raspberrypi uwsgi[431]: Python main interpreter initialized at 0x6baf20
+May 16 19:01:00 raspberrypi uwsgi[431]: python threads support enabled
+May 16 19:01:00 raspberrypi uwsgi[431]: your server socket listen backlog is limited to 100 connections
+May 16 19:01:00 raspberrypi uwsgi[431]: your mercy for graceful operations on workers is 60 seconds
+May 16 19:01:00 raspberrypi uwsgi[431]: mapped 708488 bytes (691 KB) for 10 cores
+May 16 19:01:00 raspberrypi uwsgi[431]: *** Operational MODE: preforking ***
+May 16 19:01:00 raspberrypi uwsgi[431]: added /home/pi/HomeGuard/ to pythonpath.
+May 16 19:01:02 raspberrypi uwsgi[431]: WSGI app 0 (mountpoint='') ready in 2 seconds on interpreter 0x6baf20 pid: 502 (default app)
+May 16 19:01:02 raspberrypi uwsgi[431]: *** uWSGI is running in multiple interpreter mode ***
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI master process (pid: 502)
+May 16 19:01:02 raspberrypi uwsgi[431]: Sun May 16 19:01:02 2021 - [emperor] vassal homeguard.ini has been spawned
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 1 (pid: 557, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 2 (pid: 558, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: Sun May 16 19:01:02 2021 - [emperor] vassal homeguard.ini is ready to accept requests
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 3 (pid: 559, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 4 (pid: 560, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 5 (pid: 561, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 6 (pid: 562, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 7 (pid: 563, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 8 (pid: 564, cores: 1)
+May 16 19:01:02 raspberrypi uwsgi[431]: spawned uWSGI worker 9 (pid: 565, cores: 1)
+May 16 19:01:03 raspberrypi uwsgi[431]: spawned uWSGI worker 10 (pid: 566, cores: 1)
+May 16 19:03:18 raspberrypi uwsgi[431]: [pid: 564|app: 0|req: 1/1] 192.168.178.43 () {42 vars in 670 bytes} [Sun May 16 17:03:16 2021] GET / => generated 7861 byt
+May 16 19:03:18 raspberrypi uwsgi[431]: announcing my loyalty to the Emperor...
+May 16 19:03:18 raspberrypi uwsgi[431]: Sun May 16 19:03:18 2021 - [emperor] vassal homeguard.ini is now loyal
+May 16 19:16:48 raspberrypi uwsgi[431]: [pid: 558|app: 0|req: 1/2] 192.168.178.43 () {42 vars in 696 bytes} [Sun May 16 17:16:47 2021] GET /network/ => generated 
+May 16 19:16:48 raspberrypi uwsgi[431]: announcing my loyalty to the Emperor...
+May 16 19:16:48 raspberrypi uwsgi[431]: Sun May 16 19:16:48 2021 - [emperor] vassal homeguard.ini is now loyal
+May 16 19:17:01 raspberrypi uwsgi[431]: [pid: 558|app: 0|req: 2/3] 192.168.178.43 () {42 vars in 738 bytes} [Sun May 16 17:17:01 2021] GET /vision/camera-usb-ifra
+May 16 19:17:02 raspberrypi uwsgi[431]: [ WARN:0] global /home/pi/opencv/modules/videoio/src/cap_v4l.cpp (877) open VIDEOIO(V4L2): can't find camera device
+May 16 19:17:04 raspberrypi uwsgi[431]: Can't open camera
+May 16 19:17:04 raspberrypi uwsgi[431]: Traceback (most recent call last):
+May 16 19:17:04 raspberrypi uwsgi[431]:   File "/home/pi/HomeGuard/my_env/lib/python3.7/site-packages/django/utils/text.py", line 300, in compress_sequence
+May 16 19:17:04 raspberrypi uwsgi[431]:     for item in sequence:
+May 16 19:17:04 raspberrypi uwsgi[431]:   File "/home/pi/HomeGuard/vision/views.py", line 36, in gen
+May 16 19:17:04 raspberrypi uwsgi[431]:     frame = camera.get_frame()
+May 16 19:17:04 raspberrypi uwsgi[431]:   File "/home/pi/HomeGuard/vision/views.py", line 26, in get_frame
+May 16 19:17:04 raspberrypi uwsgi[431]:     _, jpeg = cv2.imencode('.jpg', image)
+May 16 19:17:04 raspberrypi uwsgi[431]: cv2.error: OpenCV(4.5.2) /home/pi/opencv/modules/imgcodecs/src/loadsave.cpp:896: error: (-215:Assertion failed) !image.emp
+```
+
+Camera is seen in the system:  
+```pi@raspberrypi:~ $ v4l2-ctl --list-devices
+bcm2835-codec-decode (platform:bcm2835-codec):
+        /dev/video10
+        /dev/video11
+        /dev/video12
+
+bcm2835-isp (platform:bcm2835-isp):
+        /dev/video13
+        /dev/video14
+        /dev/video15
+        /dev/video16
+
+C922 Pro Stream Webcam (usb-0000:01:00.0-1.3):
+        /dev/video0
+        /dev/video1
+```
+
+I suspect the permission problem, but maybe it's something else. Please, help me resolve this case.
+
+ 

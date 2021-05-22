@@ -3,6 +3,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.http import StreamingHttpResponse, HttpResponseServerError
 
 import cv2
+import subprocess
 import threading
 from time import sleep
 
@@ -12,6 +13,8 @@ class VideoCamera(object):
         self.video = cv2.VideoCapture(0)
         self.video.set(3, 640)
         self.video.set(4, 480)
+        output = subprocess.run(["ls", "-lah", "/dev/video0"], capture_output=True)
+        print(output)
         sleep(2.0)
         (self.grabbed, self.frame) = self.video.read()
         if not self.grabbed:

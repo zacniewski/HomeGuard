@@ -68,3 +68,7 @@ You can find many useful hints [here](https://www.digitalocean.com/community/tut
 ## Frames in template
   * on RPi 4 Logitech, Inc. C922 Pro Stream Webcam displays image in 640 x 480 format
   * on my laptop webcam displays image in 2304 x 1536 format
+
+## bc2835-v4l2 drivers
+  * add line 'bcm2835-v4l2' to /etc/modules and restart
+  * I did 'rpi-update' and kernel changed from 5.10.17 to 5.10.36 (22 May 2021)

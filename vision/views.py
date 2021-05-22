@@ -13,7 +13,7 @@ class VideoCamera(object):
         self.video = cv2.VideoCapture(0)
         self.video.set(3, 640)
         self.video.set(4, 480)
-        output = subprocess.run(["v4l2-ctl", "--list-devices"], capture_output=True)
+        output = subprocess.run(["id", "-u", "-n"], capture_output=True)
         print(output)
         sleep(2.0)
         (self.grabbed, self.frame) = self.video.read()

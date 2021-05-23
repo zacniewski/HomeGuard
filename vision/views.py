@@ -25,6 +25,7 @@ class VideoCamera(object):
 
     def __del__(self):
         self.video.release()
+        cv2.destroyAllWindows()
 
     def get_frame(self):
         image = self.frame

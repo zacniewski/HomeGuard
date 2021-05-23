@@ -11,6 +11,8 @@ from time import sleep
 class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0)
+        if not self.video:
+            print("Can't instantiate VideoCapture")
         self.video.set(3, 640)
         self.video.set(4, 480)
         output = subprocess.run(["v4l2-ctl", "--list-devices"], capture_output=True)

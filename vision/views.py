@@ -10,17 +10,11 @@ from time import sleep
 
 class VideoCamera(object):
     def __init__(self):
-        lsof1 = subprocess.run(["lsof",  "/dev/video0"])
-        print("lsof1 = ", lsof1)
         self.video = cv2.VideoCapture(0)
-        lsof2 = subprocess.run(["lsof",  "/dev/video0"])
-        print("lsof2 = ", lsof2)
         if not self.video:
             print("Can't instantiate VideoCapture")
         self.video.set(3, 640)
         self.video.set(4, 480)
-        output = subprocess.run(["v4l2-ctl", "--list-devices"], capture_output=True)
-        print(output)
         sleep(2.0)
         (self.grabbed, self.frame) = self.video.read()
         if not self.grabbed:

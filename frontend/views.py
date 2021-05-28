@@ -12,7 +12,7 @@ class IndexView(TemplateView):
 
 
 def network(request):
-    if cv2.VideoCapture(0):
+    if cv2.VideoCapture(0).isOpened():
         cv2.VideoCapture(0).release()
     # 'wlan0' for RPi and 'wlp5s0' for my laptop
     result_of_iwconfig = subprocess.run(['iwconfig', 'wlan0'], stdout=subprocess.PIPE).stdout.decode('utf-8')

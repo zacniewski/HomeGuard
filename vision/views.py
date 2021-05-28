@@ -3,7 +3,6 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.http import StreamingHttpResponse, HttpResponseServerError
 
 import cv2
-import subprocess
 import threading
 from time import sleep
 

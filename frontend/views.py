@@ -4,7 +4,7 @@ from time import sleep
 from django.shortcuts import render
 from django.views.generic import TemplateView
 
-from cv2 import VideoCapture
+import cv2
 
 
 class IndexView(TemplateView):
@@ -12,8 +12,8 @@ class IndexView(TemplateView):
 
 
 def network(request):
-    if VideoCapture(0):
-        VideoCapture(0).release()
+    if cv2.VideoCapture(0):
+        cv2.VideoCapture(0).release()
     # 'wlan0' for RPi and 'wlp5s0' for my laptop
     result_of_iwconfig = subprocess.run(['iwconfig', 'wlan0'], stdout=subprocess.PIPE).stdout.decode('utf-8')
     result_of_ifconfig_eth0 = subprocess.run(['ifconfig', 'eth0'], stdout=subprocess.PIPE).stdout.decode('utf-8')

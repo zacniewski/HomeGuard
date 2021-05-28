@@ -1,14 +1,26 @@
 I'm building a production server on Raspberry Pi 4. Web app is written in Django. I used uWSGI as an application server and Nginx as a reverse proxy. I followed many tips from [Digital Ocean](https://www.digitalocean.com/community/tutorials/how-to-serve-django-applications-with-uwsgi-and-nginx-on-ubuntu-16-04).
-One of the tasks is to stream frames from USB camera connected to RPi. My inspirations was [post](https://www.pyimagesearch.com/2019/09/02/opencv-stream-video-to-web-browser-html-page/) from PyImageSearch, but I wanted to do it in Django.   
+One of the tasks is to stream frames from USB camera connected to RPi. My inspirations was [post](https://www.pyimagesearch.com/2019/09/02/opencv-stream-video-to-web-browser-html-page/) from PyImageSearch, but I wanted to do it in Django on production server. My OpenCV version is 4.5.2.   
 
 1. Class responsible for opening the camera looks as follows:  
 
-```
+```python
 # views.py
+# I added some 'lsof' commands to check usage of '/dev/video0'  
 
 class VideoCamera(object):
     def __init__(self):
+        lsof1 = subprocess.run(["lsof",  "/dev/video0"])
+        print("lsof1 = ", lsof1)
         self.video = cv2.VideoCapture(0)
+        lsof2 = subprocess.run(["lsof",  "/dev/video0"])
+        print("lsof2 = ", lsof2)
+        if not self.video:
+            print("Can't instantiate VideoCapture")
+        self.video.set(3, 640)
+        self.video.set(4, 480)
+        output = subprocess.run(["v4l2-ctl", "--list-devices"],  capture_output=True)
+        print(output)
+        sleep(2.0)
         (self.grabbed, self.frame) = self.video.read()
         if not self.grabbed:
             print("Can't open camera")
@@ -26,8 +38,20 @@ class VideoCamera(object):
         while True:
             (self.grabbed, self.frame) = self.video.read()
 
+```  
+
+2. This code works fine both on my laptop and on RPi 4, but only on development server of Django:  
 ```
-2. This code works fine both on my laptop and on RPi 4, but only on development server of Django. After running on production server (Nginx + uWSGI) I get following message after `sudo systemctl status uwsgi`:  
+lsof1 =  CompletedProcess(args=['lsof', '/dev/video0'], returncode=1)
+COMMAND PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+python  979   pi  mem    CHR   81,7           402 /dev/video0
+python  979   pi   11u   CHR   81,7      0t0  402 /dev/video0
+lsof2 =  CompletedProcess(args=['lsof', '/dev/video0'], returncode=0)
+CompletedProcess(args=['v4l2-ctl', '--list-devices'], returncode=0, stdout=b'bcm2835-codec-decode (platform:bcm2835-codec):\n\t/dev/video10\n\t/dev/video11\n\t/dev/video12\n\nbcm2835-isp (platform:bcm2835-isp):\n\t/dev/video13\n\t/dev/video14\n\t/dev/video15\n\t/dev/video16\n\nC922 Pro Stream Webcam (usb-0000:01:00.0-1.4):\n\t/dev/video0\n\t/dev/video1\n\n', stderr=b'')
+[27/May/2021 19:46:45] "GET /vision/camera-usb-streaming/ HTTP/1.1" 200 363405061
+```
+
+ After running on production server (Nginx + uWSGI) I get following message after `sudo systemctl status uwsgi`:  
 
 ```
 uwsgi.service - uWSGI Emperor service
@@ -109,7 +133,7 @@ enable-threads = true
 vacuum          = true
 ```
 
-I set 777 only to check if it was a problem, but it didn't help, and I wiil change it later.  
+I set 777 only to check if it was a problem, but it didn't help, and I will change it later.  
 
 5. Permissions to socket:  
 ```
@@ -255,7 +279,6 @@ May 21 11:07:07 raspberrypi uwsgi[428]: [pid: 562|app: 0|req: 3/5] 192.168.178.4
 ```
 
 
-
 9. Camera is seen in the system:  
 ```pi@raspberrypi:~ $ v4l2-ctl --list-devices
 bcm2835-codec-decode (platform:bcm2835-codec):
@@ -279,6 +302,11 @@ C922 Pro Stream Webcam (usb-0000:01:00.0-1.3):
 drwxr-xr-x 11 pi video 4096 May 16 19:49 HomeGuard
 ```
 
-As I said, I suspect the permission problem, but maybe it's something else. Please, help me resolve this case.
+11. When I use 'subprocess' module to run shell command 'v4l2-ctl --list-devices' (class VideoCamera from point 1) I get following message on production server:  
+```
+CompletedProcess(args=['v4l2-ctl', '--list-devices'], returncode=1, stdout=b'', stderr=b'Failed to open /dev/video0: Permission denied\n')
+```
+
+So it must be something with permissions, but I don't know where to look for.
 
  

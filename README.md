@@ -58,12 +58,12 @@ You can find many useful hints [here](https://www.digitalocean.com/community/tut
   * April 2021, OpenCV 4.5.2 is installed in HomeGuard system,
   * in [this](https://www.pyimagesearch.com/2018/08/15/how-to-install-opencv-4-on-ubuntu/) article, way to install OpenCV 4 on Ubuntu is presented,
   the only thing to correct is the path to cv2***.so file, which will be symlinked later. The correct path is presented under the first link.
-    
+  * compile OpenCV with flags listed in 'opencv-452-flags-cmake.txt'    
+
 ## Permissions to use camera in production mode
   * changing ```sudo chmod 666 /dev/video0/``` doesn't work
-  * add ```www-data``` user to 'video' group
-  * changing owner to pi:video in 'uwsgi.service' doesn't work
-  * waiting for solution ...
+  * add ```www-data``` user to 'video'
+  * changing owner to pi:video in 'uwsgi.service'
 
 ## Frames in template
   * on RPi 4 Logitech, Inc. C922 Pro Stream Webcam displays image in 640 x 480 format
@@ -72,3 +72,6 @@ You can find many useful hints [here](https://www.digitalocean.com/community/tut
 ## bc2835-v4l2 drivers
   * add line 'bcm2835-v4l2' to /etc/modules and restart
   * I did 'rpi-update' and kernel changed from 5.10.17 to 5.10.36 (22 May 2021)
+
+## udev rules
+  * I created udev rule: SUBSYSTEM=="video0", GROUP="video", MODE="0660" in file /etc/udev/rules.d/10-webcam.rules and it doesn't work

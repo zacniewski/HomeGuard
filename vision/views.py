@@ -48,6 +48,11 @@ def gen(camera):
 def camera_usb_streaming(request):
     subprocess.run(["sudo", "systemctl", "restart", "uwsgi"])
     try:
+        if cv2.VideoCapture(0).isOpened():
+            print("VC open")
+            cv2.VideoCapture(0).release()
+        else:
+            print("VC closed!!")
         cam = VideoCamera()
         return StreamingHttpResponse(gen(cam), content_type="multipart/x-mixed-replace;boundary=frame")
     except HttpResponseServerError as e:

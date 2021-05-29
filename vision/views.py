@@ -46,7 +46,6 @@ def gen(camera):
 @gzip.gzip_page
 @xframe_options_exempt
 def camera_usb_streaming(request):
-    subprocess.run(["sudo", "systemctl", "restart", "uwsgi"])
     try:
         if cv2.VideoCapture(0).isOpened():
             print("VC open")

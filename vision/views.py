@@ -1,3 +1,5 @@
+import subprocess
+
 from django.views.decorators import gzip
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.http import StreamingHttpResponse, HttpResponseServerError
@@ -44,6 +46,7 @@ def gen(camera):
 @gzip.gzip_page
 @xframe_options_exempt
 def camera_usb_streaming(request):
+    subprocess.run(["sudo", "systemctl", "restart", "uwsgi"])
     try:
         cam = VideoCamera()
         return StreamingHttpResponse(gen(cam), content_type="multipart/x-mixed-replace;boundary=frame")

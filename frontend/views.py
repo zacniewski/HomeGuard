@@ -1,11 +1,8 @@
 import subprocess
 from time import sleep
-import cv2
 
 from django.shortcuts import render
 from django.views.generic import TemplateView
-
-from vision.views import VideoCamera
 
 
 class IndexView(TemplateView):
@@ -13,10 +10,6 @@ class IndexView(TemplateView):
 
 
 def network(request):
-    if cv2.VideoCapture(0).isOpened():
-        print("VC is opened")
-    else:
-        print("VC not opened!!!")
     # 'wlan0' for RPi and 'wlp5s0' for my laptop
     result_of_iwconfig = subprocess.run(['iwconfig', 'wlan0'], stdout=subprocess.PIPE).stdout.decode('utf-8')
     result_of_ifconfig_eth0 = subprocess.run(['ifconfig', 'eth0'], stdout=subprocess.PIPE).stdout.decode('utf-8')

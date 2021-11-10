@@ -71,7 +71,10 @@ You can find many useful hints [here](https://www.digitalocean.com/community/tut
 
 ## bc2835-v4l2 drivers
   * add line 'bcm2835-v4l2' to /etc/modules and restart
-  * I did 'rpi-update' and kernel changed from 5.10.17 to 5.10.36 (22 May 2021)
 
 ## udev rules
   * I created udev rule: SUBSYSTEM=="video0", GROUP="video", MODE="0660" in file /etc/udev/rules.d/10-webcam.rules and it doesn't work
+
+## rpi-update
+  * I did 'sudo rpi-update' and kernel changed from 5.10.17 to 5.10.36 (22 May 2021),
+  * kernel changed to 5.10.78 (10 Now 2021).

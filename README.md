@@ -61,7 +61,7 @@ You can find many useful hints [here](https://www.digitalocean.com/community/tut
   * compile OpenCV with flags listed in 'opencv-452-flags-cmake.txt'    
 
 ## Permissions to use camera in production mode
-  * changing ```sudo chmod 666 /dev/video0/``` doesn't work
+  * changing ```sudo chmod 666 /dev/video0/``` (temporary permission to check if code works)
   * add ```www-data``` user to 'video'
   * changing owner to pi:video in 'uwsgi.service'
 
@@ -73,8 +73,11 @@ You can find many useful hints [here](https://www.digitalocean.com/community/tut
   * add line 'bcm2835-v4l2' to /etc/modules and restart
 
 ## udev rules
-  * I created udev rule: SUBSYSTEM=="video0", GROUP="video", MODE="0660" in file /etc/udev/rules.d/10-webcam.rules and it doesn't work
+  * I created udev rule: SUBSYSTEM=="video0", GROUP="video", MODE="0660" in file /etc/udev/rules.d/10-webcam.rules to check access to USB camera.  
 
 ## rpi-update
   * I did 'sudo rpi-update' and kernel changed from 5.10.17 to 5.10.36 (22 May 2021),
   * kernel changed to 5.10.78 (10 Now 2021).
+
+## New camera system in Raspberry Pi OS
+  * [News](https://www.raspberrypi.com/news/bullseye-camera-system/) from 17th November 2021.
